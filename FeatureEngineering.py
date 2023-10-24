@@ -51,8 +51,6 @@ for col in columns_to_split:
 
 
 
-
-# # Assuming `Method` column contains the method of victory
 # df['Win_by_KOTKO'] = (df['Method'] == 'KO/TKO').astype(int)
 # df['Win_by_Submission'] = (df['Method'] == 'Submission').astype(int)
 
@@ -96,7 +94,7 @@ def update_elo(rating_winner, rating_loser, method, round, k=32):
     expected_winner = 1 / (1 + 10**((rating_loser - rating_winner) / 400))
     expected_loser = 1 / (1 + 10**((rating_winner - rating_loser) / 400))
     
-    # Adjust k based on method and round
+    # Adjust k based on method
     if 'KO/TKO' in method:
         k *= 1.3  # Example: Increase k by 20% for KO/TKO
     elif 'Submission' in method:
@@ -157,16 +155,15 @@ for idx, row in df.iterrows():
     elo_ratings[fighter_1_name] = elo_fighter_1
     elo_ratings[fighter_2_name] = elo_fighter_2
     
-    # Optionally, store the updated Elo ratings in the DataFrame as well
+    # store the updated Elo ratings in the DataFrame as well
     df.at[idx, 'Elo Fighter 1'] = elo_fighter_1
     df.at[idx, 'Elo Fighter 2'] = elo_fighter_2
 
 
-# If you want the DataFrame to be in the original order (newest to oldest), reverse it again
 df = df.iloc[::-1]
 
 
-#%% ELO change over time
+#%% Ploting ELO over time (for specific fighter)
 
 
 
@@ -200,11 +197,6 @@ plt.tight_layout()
 plt.show()
 
 
-
-
-
-
-    
 
 #%% Aggregation
 
@@ -258,10 +250,10 @@ grouped = df_combined.groupby('Fighter 1 Name').agg({
     'Win_by_Submission': 'sum'
 })
 
-# 1. Rename the column after aggregation
+# Rename the column after aggregation
 grouped = grouped.rename(columns={'Fighter 1 Name': 'Number of Fights'})
 
-# 2. Add the Elo values from the dictionary
+# Add the Elo values from the dictionary
 grouped['Elo'] = grouped.index.map(elo_ratings)
 
 
@@ -279,7 +271,6 @@ INITIAL_VARIANCE = 3143.535434794006
 
 def update_variance(num_matches, initial_variance=INITIAL_VARIANCE):
     # This is a simple heuristic: the variance decreases as the number of matches increases.
-    # You can adjust the formula as needed.
     return initial_variance / (1 + num_matches)
 
 # Compute the variance for each fighter
@@ -397,12 +388,6 @@ fighter_profiles['Short Term Momentum'] = filtered_grouped['Short Term Momentum'
 fighter_profiles['Long Term Momentum'] = filtered_grouped['Long Term Momentum']
 
 
-# Add the additional columns
-fighter_profiles['Elo'] = filtered_grouped['Elo']
-fighter_profiles['Elo_Var'] = filtered_grouped['Variance']
-fighter_profiles['Short Term Momentum'] = filtered_grouped['Short Term Momentum']
-fighter_profiles['Long Term Momentum'] = filtered_grouped['Long Term Momentum']
-
 
 
 #%% Cluster visualization using t-SNE (exploratory)
@@ -413,12 +398,11 @@ from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
 
 
-# Assuming 'Number of Fights' is a column in your fighter_profiles DataFrame
 filtered_fighters = fighter_profiles[fighter_profiles['Number of Fights'] >= 10]
 filtered_fighters = filtered_fighters.fillna(0)
 
 
-# Drop 'Number of Fights' and 'Win Rate' columns
+# Drop columns
 filtered_fighters = filtered_fighters.drop(columns=['Number of Fights','Win rate', 'Elo', 'Elo_Var', 'Short Term Momentum', 'Long Term Momentum'])
 
 
