@@ -5,6 +5,8 @@
 
 **Project Overview:** This repository is dedicated to developing a model for predicting UFC fight outcomes. The main components of the project right now include:
 
+Note: The scraper does scrape draws or NC right now, due to small issue in the code.
+
 1. **Data Scraping:** Raw data is sourced directly from ufcstats.com using the script `MainScrape.py`.
 2. **Data Preprocessing & Feature Engineering:** After scraping, the data undergoes preprocessing and feature engineering in `FeatureEngineering.py`. Also, ELO algorithm is implemented to get a measure of fighter skill.
 3. **Cluster Visualization:** At the end of `FeatureEngineering.py`, an exploratory cluster visualization using t-SNE is done to explore if fighter style categorization is possible
